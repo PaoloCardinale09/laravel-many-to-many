@@ -19,12 +19,12 @@
 
 @section('content')
 
-<section class="d-flex">
-
-    <div>
+<section class="row">
+    
+    <div class="col-4">
         <img src=" {{ $project->getImageUri() }}  " alt="" class="img-fluid">
     </div>
-    <div class="px-5">
+    <div class="px-5 col-8">
         @if ($project->type?->label)
             
         <p>
@@ -45,6 +45,13 @@
         <hr>
         <h4> <a href=" {{ $project->url }} ">{{ $project->url }} </a>  </h4>
     </div>
+    <div class="col ps-5 mt-5">
+        <p> <strong> Created at:</strong> {{ $project->created_at }} </p>
+    </div>
+     <div class="col text-end pe-5 mt-5">
+        <p> <strong> Updated at:</strong> {{ $project->updated_at }} </p>
+    </div>
+    
 
 </section>
     

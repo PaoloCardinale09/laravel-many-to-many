@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Project;
+use App\Models\Technology;
 use App\Models\Type;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -29,7 +30,9 @@ class ProjectController extends Controller
     {   
         $project = new Project;
         $types = Type::orderBy('label')->get();
-        return view('admin.projects.form', compact('project', 'types'));
+        $technologies = Technology::orderBy('label')->get();
+        $project_technologies = [];
+        return view('admin.projects.form', compact('project', 'types','technologies'));
     }
 
     /**
@@ -39,18 +42,15 @@ class ProjectController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:50',
-            'technology' => 'required|string|max:50',
             'description' => 'required|string|max:1000',
             'url'=> 'url|max:100',
             'image' => 'nullable|image|mimes:jpg,png,jpeg',
-            'type_id' => 'nullable|exists:types,id'
-
+            'type_id' => 'nullable|exists:types,id',
+            'technologies' => 'nullable|exists:technologies,id'
         ],
         [
             'name.required' => 'Il nome del progetto è obbligatorio',  
             'name.max' => 'Il nome può avere massimo 50 caratteri',   
-            'technology.required' => 'La tecnologia utilizzata è obbligatoria',    
-            'technology.max' => 'Le tecnologie utilizzate possono avere massimo 50 caratteri',
             'description.required' => 'La descrizione è obbligatoria',
             'description.max' => 'La descrizione può avere un massimo di 1000 caratteri',
             'url.url'=> 'Deve essere un link valido',
@@ -58,8 +58,10 @@ class ProjectController extends Controller
             'image.image' => 'Il file caricato deve essere un\' immagine',
             'image.mimes' => 'Le estensione consentite per l\'immagine sono: jpg,png,jpeg',
             'type_id.exists' => 'L\'id del Tipo non è valido', 
-
+            'technologies.exists' => 'Le tecnologie selezionate non sono valide', 
         ]);
+
+    
 
         $data = $request->all();
 
@@ -71,6 +73,10 @@ class ProjectController extends Controller
         $project = new Project;
         $project->fill($data);
         $project->save();
+
+        if(Arr::exists($data, "technologies" )) $project->technologies()->attach($data["technologies"]);
+       
+
         return to_route('admin.projects.show', $project)
             ->with('message_content', "Project $project->id creato con successo");
     }
@@ -89,7 +95,9 @@ class ProjectController extends Controller
     public function edit(Project $project)
     {
         $types = Type::orderBy('label')->get();
-        return view('admin.projects.form', compact('project', 'types'));
+        $technologies = Technology::orderBy('label')->get();
+        $project_technologies = $project->technologies->pluck('id')->toArray();
+        return view('admin.projects.form', compact('project', 'types','technologies','project_technologies'));
     }
 
     /**
@@ -99,17 +107,15 @@ class ProjectController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:50',
-            'technology' => 'required|string|max:50',
             'description' => 'required|string|max:1000',
             'url'=> 'url|max:100',
             'image' => 'nullable|image|mimes:jpg,png,jpeg',
-            'type_id' => 'nullable|exists:types,id'
+            'type_id' => 'nullable|exists:types,id',
+            'technologies' => 'nullable|exists:technologies,id'
         ],
         [
             'name.required' => 'Il nome del progetto è obbligatorio',  
             'name.max' => 'Il nome può avere massimo 50 caratteri',   
-            'technology.required' => 'La tecnologia utilizzata è obbligatoria',    
-            'technology.max' => 'Le tecnologie utilizzate possono avere massimo 50 caratteri',
             'description.required' => 'La descrizione è obbligatoria',
             'description.max' => 'La descrizione può avere un massimo di 1000 caratteri',
             'url.url'=> 'Deve essere un link valido',
@@ -117,8 +123,8 @@ class ProjectController extends Controller
             'image.image' => 'Il file caricato deve essere un\' immagine',
             'image.mimes' => 'Le estensione consentite per l\'immagine sono: jpg,png,jpeg',
             'type_id.exists' => 'L\'id del Tipo non è valido', 
+            'technologies.exists' => 'Le tecnologie selezionate non sono valide', 
         ]);
-
 
         $data = $request->all();
 
@@ -129,8 +135,13 @@ class ProjectController extends Controller
         }
 
 
-        $data = $data;
+    
         $project->update($data);
+
+        if(Arr::exists($data, "technologies" )) $project->technologies()->sync($data["technologies"]);
+        else 
+        $project->technologies()->detach();
+        
         return redirect()->route('admin.projects.show', $project)
         ->with('message_content', "Project $project->id creato con successo");
     }
