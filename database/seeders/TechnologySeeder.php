@@ -2,25 +2,24 @@
 
 namespace Database\Seeders;
 
-use App\Models\Type;
+use App\Models\Technology;
 use Faker\Generator as Faker;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class TypeSeeder extends Seeder
+class TechnologySeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(Faker $faker): void
     {
-        $labels = ['Web page', 'Backoffice', 'Front-end', 'Back-end'];
-        $label = null;
-
+        $labels = ['HTML 5', 'SCSS', 'CSS', 'Php', 'Bootstrap 5', 'Tailwind', 'Javascript'];
+        
         foreach($labels as $label){
-            $type = new Type();
+            $type = new Technology();
             $type->label = $label;
-
+            
             $type->save();
 
         }

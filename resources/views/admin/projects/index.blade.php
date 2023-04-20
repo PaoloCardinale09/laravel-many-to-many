@@ -31,7 +31,12 @@
                 <th scope="row"> {{ $project->id }} </th>
                 <td>{{ $project->name }}</td>
                 <td>{{ $project->type?->label }}</td> 
-                <td>{{ $project->technology }}</td>
+                <td>@forelse ($project->technologies as $technology) {{ $technology->label }} @unless ($loop->last)
+                    ,
+                @endunless 
+               
+                @empty -
+                @endforelse</td>
                 <td class="d-flex gap-3 ">
                     <a href=" {{ route('admin.projects.show', $project) }} "><i class="bi bi-info-circle"></i></a>
                     <a href=" {{ route('admin.projects.edit', $project) }} "><i class="bi bi-pencil"></i></a>

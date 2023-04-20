@@ -34,7 +34,12 @@
         </p>
         @endif
         <h3 class="pb-3 text-dark"> Used technologies: <br> <i class="text-muted">
-            {{ $project->technology }}  </i></h3>
+            @forelse ($project->technologies as $technology) {{ $technology->label }} @unless ($loop->last)
+                    ,
+                @endunless 
+               
+                @empty -
+                @endforelse </i></h3>
             <hr>
         <p> {{ $project->description }} </p>
         <hr>
